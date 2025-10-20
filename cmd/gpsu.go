@@ -1,11 +1,11 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2025 foreverwintr@gmail.com
 */
 package cmd
 
 import (
 	"fmt"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -13,15 +13,24 @@ import (
 // gpsuCmd represents the gpsu command
 var gpsuCmd = &cobra.Command{
 	Use:   "gpsu",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "git push --set-upstream",
+	Long:  `Push the current branch to the remote repository and set the upstream tracking reference.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gpsu called")
+		result, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+
+		command := exec.Command("git", "push", "--set-upstream", "origin", string(result))
+		fmt.Println("Executing command:", command.String())
+		result, err = command.Output()
+		if err != nil {
+			fmt.Println(string(result))
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Println("Current branch:", string(result))
 	},
 }
 
