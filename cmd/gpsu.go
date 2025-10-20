@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -16,15 +17,17 @@ var gpsuCmd = &cobra.Command{
 	Short: "git push --set-upstream",
 	Long:  `Push the current branch to the remote repository and set the upstream tracking reference.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		result, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
+		branch_name, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
 		}
-
-		command := exec.Command("git", "push", "--set-upstream", "origin", string(result))
+		command := exec.Command(
+			"git", "push", "--set-upstream", "origin",
+			strings.TrimSpace(string(branch_name)))
 		fmt.Println("Executing command:", command.String())
-		result, err = command.Output()
+
+		result, err := command.CombinedOutput()
 		if err != nil {
 			fmt.Println(string(result))
 			fmt.Println("Error:", err)
